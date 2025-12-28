@@ -84,9 +84,33 @@ export NOTEBOOKLM_COOKIES="SID=xxx; HSID=xxx; SSID=xxx; ..."
 
 ## MCP Configuration
 
-### Claude Code
+> **⚠️ Context Window Warning:** This MCP provides **30 tools** which consume a significant portion of your context window. It's recommended to **disable the MCP when not actively using NotebookLM** to preserve context for your other work. In Claude Code, use `@notebooklm-consumer` to toggle it on/off, or use `/mcp` command.
 
-Add to `~/.claude.json`:
+No environment variables needed - the MCP uses cached tokens from `~/.notebooklm-consumer/auth.json`.
+
+### Claude Code (Recommended CLI Method)
+
+Use the built-in CLI command to add the MCP server:
+
+```bash
+# Add for all projects (recommended)
+claude mcp add --scope user notebooklm-consumer notebooklm-consumer-mcp
+
+# Or add for current project only
+claude mcp add notebooklm-consumer notebooklm-consumer-mcp
+```
+
+That's it! Restart Claude Code to use the MCP tools.
+
+**Verify installation:**
+```bash
+claude mcp list
+```
+
+<details>
+<summary>Alternative: Manual JSON Configuration</summary>
+
+If you prefer to edit the config file manually, add to `~/.claude.json`:
 
 ```json
 {
@@ -98,33 +122,79 @@ Add to `~/.claude.json`:
 }
 ```
 
+Restart Claude Code after editing.
+</details>
+
 ### Cursor
 
-Add to `~/.cursor/mcp.json`:
+**Step 1:** Find where the MCP binary is installed:
+
+```bash
+# On macOS/Linux:
+which notebooklm-consumer-mcp
+
+# On Windows:
+where notebooklm-consumer-mcp
+
+# Example output: /Users/yourname/.local/bin/notebooklm-consumer-mcp
+```
+
+**Step 2:** Add to `~/.cursor/mcp.json` using the full path from Step 1:
 
 ```json
 {
   "mcpServers": {
     "notebooklm-consumer": {
-      "command": "/path/to/notebooklm-consumer-mcp",
+      "command": "/Users/yourname/.local/bin/notebooklm-consumer-mcp",
       "args": []
     }
   }
 }
 ```
 
+**Step 3:** Restart Cursor.
+
 ### Gemini CLI
 
-Add to `~/.gemini/settings.json` under `mcpServers`:
+**Step 1:** Find where the MCP binary is installed:
+
+```bash
+# On macOS/Linux:
+which notebooklm-consumer-mcp
+
+# On Windows:
+where notebooklm-consumer-mcp
+
+# Example output: /Users/yourname/.local/bin/notebooklm-consumer-mcp
+```
+
+**Step 2:** Add to `~/.gemini/settings.json` under `mcpServers` using the full path from Step 1:
 
 ```json
 "notebooklm-consumer": {
-  "command": "/path/to/notebooklm-consumer-mcp",
+  "command": "/Users/yourname/.local/bin/notebooklm-consumer-mcp",
   "args": []
 }
 ```
 
-No environment variables needed - the MCP uses cached tokens from `~/.notebooklm-consumer/auth.json`.
+**Step 3:** Restart Gemini CLI.
+
+### Managing Context Window Usage
+
+Since this MCP has 30 tools, it's good practice to disable it when not in use:
+
+**Claude Code:**
+```bash
+# Toggle on/off by @-mentioning in chat
+@notebooklm-consumer
+
+# Or use the /mcp command to enable/disable
+/mcp
+```
+
+**Cursor/Gemini CLI:**
+- Comment out the server in your config file when not needed
+- Or use your tool's MCP management features if available
 
 ## Usage Examples
 
