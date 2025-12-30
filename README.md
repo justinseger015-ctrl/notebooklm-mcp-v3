@@ -211,160 +211,51 @@ Since this MCP has 31 tools, it's good practice to disable it when not in use:
 - Comment out the server in your config file when not needed
 - Or use your tool's MCP management features if available
 
-## Usage Examples
+## What You Can Do
 
-### List Notebooks
-```python
-notebooks = notebook_list()
-```
+Simply chat with your AI tool (Claude Code, Cursor, Gemini CLI) using natural language. Here are some examples:
 
-### Create and Query
-```python
-# Create a notebook
-notebook = notebook_create(title="Research Project")
+### Research & Discovery
 
-# Add sources
-notebook_add_url(notebook_id, url="https://example.com/article")
-notebook_add_text(notebook_id, text="My research notes...", title="Notes")
+- "List all my NotebookLM notebooks"
+- "Create a new notebook called 'AI Strategy Research'"
+- "Start web research on 'enterprise AI ROI metrics' and show me what sources it finds"
+- "Do a deep research on 'cloud marketplace trends' and import the top 10 sources"
+- "Search my Google Drive for documents about 'product roadmap' and create a notebook"
 
-# Ask questions
-result = notebook_query(notebook_id, query="What are the key points?")
-print(result["answer"])
-```
+### Adding Content
 
-### Configure Chat Settings
-```python
-# Set a custom chat persona with longer responses
-chat_configure(
-    notebook_id=notebook_id,
-    goal="custom",
-    custom_prompt="You are an expert data analyst. Provide detailed statistical insights.",
-    response_length="longer"
-)
+- "Add this URL to my notebook: https://example.com/article"
+- "Add this YouTube video about Kubernetes to the notebook"
+- "Add my meeting notes as a text source to this notebook"
+- "Import this Google Doc into my research notebook"
 
-# Use learning guide mode with default length
-chat_configure(
-    notebook_id=notebook_id,
-    goal="learning_guide",
-    response_length="default"
-)
+### AI-Powered Analysis
 
-# Reset to defaults with concise responses
-chat_configure(
-    notebook_id=notebook_id,
-    goal="default",
-    response_length="shorter"
-)
-```
+- "What are the key findings in this notebook?"
+- "Summarize the main arguments across all these sources"
+- "What does this source say about security best practices?"
+- "Get an AI summary of what this notebook is about"
+- "Configure the chat to use a learning guide style with longer responses"
 
-**Goal Options:** default, custom (requires custom_prompt), learning_guide
-**Response Lengths:** default, longer, shorter
+### Content Generation
 
-### Get AI Summaries
+- "Create an audio podcast overview of this notebook in deep dive format"
+- "Generate a video explainer with classic visual style"
+- "Make a briefing doc from these sources"
+- "Create flashcards for studying, medium difficulty"
+- "Generate an infographic in landscape orientation"
+- "Build a mind map from my research sources"
+- "Create a slide deck presentation from this notebook"
 
-```python
-# Get AI-generated summary of what a notebook is about
-summary = notebook_describe(notebook_id)
-print(summary["summary"])  # Markdown with **bold** keywords
-print(summary["suggested_topics"])  # Suggested report topics
+### Smart Management
 
-# Get AI-generated summary of a specific source
-source_info = source_describe(source_id)
-print(source_info["summary"])  # AI summary with **bold** keywords
-print(source_info["keywords"])  # Topic chips: ["Medical education", "AI tools", ...]
-```
+- "Check which Google Drive sources are out of date and sync them"
+- "Show me all the sources in this notebook with their freshness status"
+- "Delete this source from the notebook"
+- "Check the status of my audio overview generation"
 
-### Sync Stale Drive Sources
-```python
-# Check which sources need syncing
-sources = source_list_drive(notebook_id)
-
-# Sync stale sources (after user confirmation)
-source_sync_drive(source_ids=["id1", "id2"], confirm=True)
-```
-
-### Delete Sources
-```python
-# Delete a source from notebook (after user confirmation)
-source_delete(source_id="source-uuid", confirm=True)
-```
-
-### Research and Import Sources
-```python
-# Start web research (fast mode, ~30 seconds)
-result = research_start(
-    query="value of ISVs on cloud marketplaces",
-    source="web",   # or "drive" for Google Drive
-    mode="fast",    # or "deep" for extended research (web only)
-    title="ISV Research"
-)
-notebook_id = result["notebook_id"]
-
-# Poll until complete (built-in wait, polls every 30s for up to 5 min)
-# By default, report is truncated to 500 chars to save tokens
-# Use compact=False to get full 10,000+ char report and all sources
-status = research_status(notebook_id)
-
-# Import all discovered sources
-research_import(
-    notebook_id=notebook_id,
-    task_id=status["research"]["task_id"]
-)
-
-# Or import specific sources by index
-research_import(
-    notebook_id=notebook_id,
-    task_id=status["research"]["task_id"],
-    source_indices=[0, 2, 5]  # Import only sources at indices 0, 2, and 5
-)
-```
-
-**Research Modes:**
-- `fast` + `web`: Quick web search, ~10 sources in ~30 seconds
-- `deep` + `web`: Extended research with AI report, ~40 sources in 3-5 minutes
-- `fast` + `drive`: Quick Google Drive search, ~10 sources in ~30 seconds
-
-### Generate Audio/Video Overviews
-```python
-# Create an audio overview (podcast)
-result = audio_overview_create(
-    notebook_id=notebook_id,
-    format="deep_dive",  # deep_dive, brief, critique, debate
-    length="default",    # short, default, long
-    language="en",
-    confirm=True         # Required - show settings first, then confirm
-)
-
-# Create a video overview
-result = video_overview_create(
-    notebook_id=notebook_id,
-    format="explainer",      # explainer, brief
-    visual_style="classic",  # auto_select, classic, whiteboard, kawaii, anime, etc.
-    language="en",
-    confirm=True
-)
-
-# Check generation status (takes several minutes)
-status = studio_status(notebook_id)
-for artifact in status["artifacts"]:
-    print(f"{artifact['title']}: {artifact['status']}")
-    if artifact["audio_url"]:
-        print(f"  Audio: {artifact['audio_url']}")
-    if artifact["video_url"]:
-        print(f"  Video: {artifact['video_url']}")
-
-# Delete an artifact (after user confirmation)
-studio_delete(
-    notebook_id=notebook_id,
-    artifact_id="artifact-uuid",
-    confirm=True
-)
-```
-
-**Audio Formats:** deep_dive (conversation), brief, critique, debate
-**Audio Lengths:** short, default, long
-**Video Formats:** explainer, brief
-**Video Styles:** auto_select, classic, whiteboard, kawaii, anime, watercolor, retro_print, heritage, paper_craft
+**Pro tip:** After creating studio content (audio, video, reports, etc.), poll the status to get download URLs when generation completes.
 
 ## Authentication Lifecycle
 

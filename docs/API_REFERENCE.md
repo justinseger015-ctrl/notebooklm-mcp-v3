@@ -6,6 +6,165 @@ This document contains detailed API documentation for the reverse-engineered Not
 
 ---
 
+## Python Usage Examples
+
+These examples show how to use the MCP tools programmatically via Python (for developers building with the API). **For end users**: see the main README for natural language examples.
+
+### List Notebooks
+```python
+notebooks = notebook_list()
+```
+
+### Create and Query
+```python
+# Create a notebook
+notebook = notebook_create(title="Research Project")
+
+# Add sources
+notebook_add_url(notebook_id, url="https://example.com/article")
+notebook_add_text(notebook_id, text="My research notes...", title="Notes")
+
+# Ask questions
+result = notebook_query(notebook_id, query="What are the key points?")
+print(result["answer"])
+```
+
+### Configure Chat Settings
+```python
+# Set a custom chat persona with longer responses
+chat_configure(
+    notebook_id=notebook_id,
+    goal="custom",
+    custom_prompt="You are an expert data analyst. Provide detailed statistical insights.",
+    response_length="longer"
+)
+
+# Use learning guide mode with default length
+chat_configure(
+    notebook_id=notebook_id,
+    goal="learning_guide",
+    response_length="default"
+)
+
+# Reset to defaults with concise responses
+chat_configure(
+    notebook_id=notebook_id,
+    goal="default",
+    response_length="shorter"
+)
+```
+
+**Goal Options:** default, custom (requires custom_prompt), learning_guide
+**Response Lengths:** default, longer, shorter
+
+### Get AI Summaries
+
+```python
+# Get AI-generated summary of what a notebook is about
+summary = notebook_describe(notebook_id)
+print(summary["summary"])  # Markdown with **bold** keywords
+print(summary["suggested_topics"])  # Suggested report topics
+
+# Get AI-generated summary of a specific source
+source_info = source_describe(source_id)
+print(source_info["summary"])  # AI summary with **bold** keywords
+print(source_info["keywords"])  # Topic chips: ["Medical education", "AI tools", ...]
+```
+
+### Sync Stale Drive Sources
+```python
+# Check which sources need syncing
+sources = source_list_drive(notebook_id)
+
+# Sync stale sources (after user confirmation)
+source_sync_drive(source_ids=["id1", "id2"], confirm=True)
+```
+
+### Delete Sources
+```python
+# Delete a source from notebook (after user confirmation)
+source_delete(source_id="source-uuid", confirm=True)
+```
+
+### Research and Import Sources
+```python
+# Start web research (fast mode, ~30 seconds)
+result = research_start(
+    query="value of ISVs on cloud marketplaces",
+    source="web",   # or "drive" for Google Drive
+    mode="fast",    # or "deep" for extended research (web only)
+    title="ISV Research"
+)
+notebook_id = result["notebook_id"]
+
+# Poll until complete (built-in wait, polls every 30s for up to 5 min)
+# By default, report is truncated to 500 chars to save tokens
+# Use compact=False to get full 10,000+ char report and all sources
+status = research_status(notebook_id)
+
+# Import all discovered sources
+research_import(
+    notebook_id=notebook_id,
+    task_id=status["research"]["task_id"]
+)
+
+# Or import specific sources by index
+research_import(
+    notebook_id=notebook_id,
+    task_id=status["research"]["task_id"],
+    source_indices=[0, 2, 5]  # Import only sources at indices 0, 2, and 5
+)
+```
+
+**Research Modes:**
+- `fast` + `web`: Quick web search, ~10 sources in ~30 seconds
+- `deep` + `web`: Extended research with AI report, ~40 sources in 3-5 minutes
+- `fast` + `drive`: Quick Google Drive search, ~10 sources in ~30 seconds
+
+### Generate Audio/Video Overviews
+```python
+# Create an audio overview (podcast)
+result = audio_overview_create(
+    notebook_id=notebook_id,
+    format="deep_dive",  # deep_dive, brief, critique, debate
+    length="default",    # short, default, long
+    language="en",
+    confirm=True         # Required - show settings first, then confirm
+)
+
+# Create a video overview
+result = video_overview_create(
+    notebook_id=notebook_id,
+    format="explainer",      # explainer, brief
+    visual_style="classic",  # auto_select, classic, whiteboard, kawaii, anime, etc.
+    language="en",
+    confirm=True
+)
+
+# Check generation status (takes several minutes)
+status = studio_status(notebook_id)
+for artifact in status["artifacts"]:
+    print(f"{artifact['title']}: {artifact['status']}")
+    if artifact["audio_url"]:
+        print(f"  Audio: {artifact['audio_url']}")
+    if artifact["video_url"]:
+        print(f"  Video: {artifact['video_url']}")
+
+# Delete an artifact (after user confirmation)
+studio_delete(
+    notebook_id=notebook_id,
+    artifact_id="artifact-uuid",
+    confirm=True
+)
+```
+
+**Audio Formats:** deep_dive (conversation), brief, critique, debate
+**Audio Lengths:** short, default, long
+**Video Formats:** explainer, brief
+**Video Styles:** auto_select, classic, whiteboard, kawaii, anime, watercolor, retro_print, heritage, paper_craft
+
+---
+
 ## Base Endpoint
 
 ```
