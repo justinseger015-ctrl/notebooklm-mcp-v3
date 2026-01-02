@@ -190,16 +190,17 @@ If you prefer to edit the config file manually, add to `~/.claude.json`:
 Restart Claude Code after editing.
 </details>
 
-### Cursor, VS Code & Other IDEs (JSON Method)
+### Cursor, VS Code, Claude Desktop & Other IDEs
 
-For IDEs that use JSON configuration files for MCP servers:
+For tools that use JSON configuration files:
 
-| IDE | Config File Location |
-|-----|---------------------|
+| Tool | Config File Location |
+|------|---------------------|
 | Cursor | `~/.cursor/mcp.json` |
 | VS Code | `~/.vscode/mcp.json` |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
 
-**Option A: Using uvx (no pre-install needed)**
+Add this configuration:
 ```json
 {
   "mcpServers": {
@@ -211,21 +212,16 @@ For IDEs that use JSON configuration files for MCP servers:
 }
 ```
 
-**Option B: Using installed binary**
+Restart the application after adding the configuration.
 
-First install: `uv tool install notebooklm-mcp-server` (or pip/pipx), then:
-```json
-{
-  "mcpServers": {
-    "notebooklm-mcp": {
-      "command": "notebooklm-mcp",
-      "args": []
-    }
-  }
-}
+### Other MCP-Compatible Tools
+
+**CLI tools with built-in MCP commands** (AIDER, Codex, OpenCode, etc.):
+```bash
+<your-tool> mcp add notebooklm-mcp notebooklm-mcp
 ```
 
-Restart your IDE after adding the configuration.
+**Tools using JSON config files** — use the uvx config shown above.
 
 ### Gemini CLI (Recommended CLI Method)
 
@@ -252,22 +248,10 @@ gemini mcp list
 <summary>Alternative: Manual JSON Configuration</summary>
 
 Add to `~/.gemini/settings.json` under `mcpServers`:
-
-**Option A: Using uvx (no pre-install needed)**
 ```json
 "notebooklm-mcp": {
   "command": "uvx",
   "args": ["--from", "notebooklm-mcp-server", "notebooklm-mcp"]
-}
-```
-
-**Option B: Using installed binary**
-
-First install: `uv tool install notebooklm-mcp-server` (or pip/pipx), then:
-```json
-"notebooklm-mcp": {
-  "command": "notebooklm-mcp",
-  "args": []
 }
 ```
 
